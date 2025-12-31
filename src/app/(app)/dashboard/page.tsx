@@ -6,18 +6,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { MOCK_CALLS } from '@/lib/data';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -30,6 +18,7 @@ import {
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { HandlerChart, STTQualityChart } from './_components/charts';
 
 export default function DashboardPage() {
   const totalCalls = MOCK_CALLS.length;
@@ -56,13 +45,6 @@ export default function DashboardPage() {
   const handlerData = [
     { name: 'AI Handled', value: handledByAI },
     { name: 'Human Handled', value: handledByHuman },
-  ];
-
-  const COLORS = [
-    'hsl(var(--chart-1))',
-    'hsl(var(--chart-2))',
-    'hsl(var(--chart-3))',
-    'hsl(var(--chart-4))',
   ];
 
   const recentCalls = MOCK_CALLS.slice(0, 5);
@@ -158,16 +140,7 @@ export default function DashboardPage() {
             <CardDescription>Distribution of calls handled by AI vs. Human agents.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={handlerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                  {handlerData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <HandlerChart data={handlerData} />
           </CardContent>
         </Card>
       </div>
@@ -178,15 +151,7 @@ export default function DashboardPage() {
                 <CardDescription>Breakdown of Speech-to-Text quality across all calls.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={sttQualityData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="hsl(var(--primary))" />
-                </BarChart>
-                </ResponsiveContainer>
+                <STTQualityChart data={sttQualityData} />
             </CardContent>
         </Card>
        </div>
