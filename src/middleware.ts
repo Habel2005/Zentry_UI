@@ -61,6 +61,18 @@ export const createClient = (request: NextRequest) => {
 }
 
 export async function middleware(request: NextRequest) {
+  // Check if Supabase env vars are set. If not, bypass middleware.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey || !supabaseUrl.includes('supabase.co')) {
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
+  
   const { supabase, response } = createClient(request)
 
   // Refresh session if expired - required for Server Components
