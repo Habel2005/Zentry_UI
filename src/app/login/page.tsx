@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Logo } from '@/components/icons/logo';
 
 export default function LoginPage() {
@@ -30,10 +30,12 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    if (!supabase) {
-        setError("Supabase client is not initialized. Please check your environment variables.");
-        setLoading(false);
-        return;
+    if (!isSupabaseConfigured) {
+      setError(
+        'Supabase client is not initialized. Please check your environment variables.'
+      );
+      setLoading(false);
+      return;
     }
 
     try {
@@ -46,22 +48,44 @@ export default function LoginPage() {
         setError(error.message);
       } else {
         router.push('/dashboard');
+        router.refresh();
       }
     } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred.');
+      setError(err.message || 'An unexpected error occurred.');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-
   };
+
+  if (!isSupabaseConfigured) {
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-background px-4">
+            <Card className="w-full max-w-lg">
+                <CardHeader>
+                    <CardTitle className="text-destructive">Configuration Error</CardTitle>
+                    <CardDescription>
+                        Your Supabase environment variables are missing or invalid.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="mb-4">Please create or check your <code>.env.local</code> file and ensure that <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> are set correctly.</p>
+                    <div className="p-4 rounded-md bg-muted text-sm">
+                        <p className="font-mono">NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co</p>
+                        <p className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex items-center justify-center">
-                <Logo className="h-8 w-8 text-accent" />
-            </div>
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <Logo className="h-8 w-8 text-accent" />
+          </div>
           <CardTitle className="text-2xl">Zentry Admin UI</CardTitle>
           <CardDescription>
             Please sign in to access the dashboard.

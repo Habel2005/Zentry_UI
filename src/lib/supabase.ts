@@ -1,15 +1,17 @@
+
 import { createClient } from "@supabase/supabase-js";
 
-let supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-let supabase_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabase_key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// A simple check to see if the URL is a placeholder
-const isInvalidUrl = (url?: string) => !url || !url.includes('supabase.co');
+const isInvalidConfig = !supabase_url || !supabase_key || !supabase_url.includes('supabase.co');
 
-let supabaseInstance: ReturnType<typeof createClient> | null = null;
+// We initialize the client even if the config is invalid.
+// The checks in the UI will prevent calls from being made with bad credentials.
+export const supabase = createClient(
+  supabase_url || 'http://localhost:54321', // Provide a dummy URL if not set
+  supabase_key || 'dummy-key'
+);
 
-if (!isInvalidUrl(supabase_url) && supabase_key) {
-    supabaseInstance = createClient(supabase_url!, supabase_key!);
-}
-
-export const supabase = supabaseInstance;
+// We export the invalidity flag to be used in UI components.
+export const isSupabaseConfigured = !isInvalidConfig;

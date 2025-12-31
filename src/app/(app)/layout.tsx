@@ -1,13 +1,7 @@
 
 'use client';
 
-import {
-  Home,
-  LineChart,
-  Phone,
-  Scale,
-  Users,
-} from 'lucide-react';
+import { Home, LineChart, Phone, Scale, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
@@ -26,7 +20,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -38,49 +32,33 @@ const navItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [userEmail, setUserEmail] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const checkUser = async () => {
-      // If the supabase client isn't initialized, we can't check for a user.
-      // Redirect to login, where the user will see a config error.
-      if (!supabase) {
-        router.replace('/login');
-        return;
-      }
-      
-      const { data, error } = await supabase.auth.getSession();
-      if (error || !data.session) {
-        router.replace('/login');
-      } else {
-        setUser(data.session.user);
-        setLoading(false);
-      }
+    const fetchUser = async () => {
+      if (!isSupabaseConfigured) return;
+      const { data } = await supabase.auth.getUser();
+      setUserEmail(data.user?.email || null);
     };
-    checkUser();
-  }, [router]);
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
-    if (!supabase) return;
+    if (!isSupabaseConfigured) return;
     await supabase.auth.signOut();
-    router.replace('/login');
+    router.push('/login');
+    router.refresh();
   };
-
-  if (loading) {
-    return (
-        <div className="flex h-screen w-screen items-center justify-center">
-            <div className="text-muted-foreground">Loading...</div>
-        </div>
-    );
-  }
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-card md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-primary-foreground">
+            <Link
+              href="/"
+              className="flex items-center gap-2 font-semibold text-primary-foreground"
+            >
               <Logo className="h-6 w-6 text-accent" />
               <span className="text-foreground">Zentry Admin UI</span>
             </Link>
@@ -134,7 +112,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     href={item.href}
                     className={cn(
                       'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground',
-                      { 'bg-muted text-foreground': pathname.startsWith(item.href) }
+                      {
+                        'bg-muted text-foreground':
+                          pathname.startsWith(item.href),
+                      }
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -158,13 +139,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     height={32}
                     data-ai-hint="person face"
                   />
-                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'A'}</AvatarFallback>
+                  <AvatarFallback>
+                    {userEmail?.charAt(0).toUpperCase() || 'A'}
+                  </AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.email || 'My Account'}</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {userEmail || 'My Account'}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>Settings</DropdownMenuItem>
               <DropdownMenuItem disabled>Support</DropdownMenuItem>
