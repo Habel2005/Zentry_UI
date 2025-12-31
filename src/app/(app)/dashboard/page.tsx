@@ -8,12 +8,41 @@ import {
 import { fetchDashboardOverview } from '@/lib/queries';
 import { STTQualityChart, HandlerChart } from './_components/charts';
 import { Phone, Users, PhoneOff, Bot } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default async function DashboardPage() {
+  if (!supabase) {
+    return (
+        <Card className="max-w-xl mx-auto mt-10">
+            <CardHeader>
+                <CardTitle className="text-destructive">Configuration Error</CardTitle>
+                <CardDescription>
+                    Your Supabase environment variables are missing or invalid.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="mb-4">Please check your <code>.env.local</code> file and ensure that <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> are set correctly.</p>
+                <div className="p-4 rounded-md bg-muted text-sm">
+                    <p className="font-mono">NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co</p>
+                    <p className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key</p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+  }
+
+
   const { data: overviewData, error } = await fetchDashboardOverview();
 
   if (error || !overviewData || overviewData.length === 0) {
-    return <div className="text-center text-muted-foreground">Could not load dashboard data. Please ensure your Supabase connection is configured correctly.</div>;
+    return (
+        <div className="flex items-center justify-center h-64">
+            <div className="text-center text-muted-foreground">
+                <p>Could not load dashboard data.</p>
+                <p className="text-xs">{error?.message || "No data available in 'admin_calls_overview' view."}</p>
+            </div>
+      </div>
+    );
   }
 
   const overview = overviewData[0];
