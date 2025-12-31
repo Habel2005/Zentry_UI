@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Logo } from '@/components/icons/logo';
 
 export default function LoginPage() {
@@ -28,15 +28,15 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
     if (!isSupabaseConfigured) {
       setError(
         'Supabase client is not initialized. Please check your environment variables.'
       );
-      setLoading(false);
       return;
     }
+    
+    setLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
