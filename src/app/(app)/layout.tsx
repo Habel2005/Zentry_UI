@@ -36,9 +36,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const fetchUser = async () => {
-      if (!isSupabaseConfigured) return;
-      const { data } = await supabase.auth.getUser();
-      setUserEmail(data.user?.email || null);
+        if (!isSupabaseConfigured) return;
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+            setUserEmail(data.user.email || null);
+        }
     };
     fetchUser();
   }, []);
