@@ -36,19 +36,37 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const fetchUser = async () => {
-        if (!isSupabaseConfigured) return;
-        const { data } = await supabase.auth.getUser();
-        if (data.user) {
-            setUserEmail(data.user.email || null);
-        }
+      if (!isSupabaseConfigured) return;
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        setUserEmail(data.user.email || null);
+      } else {
+        // This case should be handled by middleware, but as a fallback:
+        router.push('/login');
+      }
     };
     fetchUser();
-  }, []);
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          router.push('/login');
+        }
+        if (event === 'SIGNED_IN' && session?.user) {
+          setUserEmail(session.user.email || null);
+        }
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+
+  }, [router]);
 
   const handleLogout = async () => {
     if (!isSupabaseConfigured) return;
     await supabase.auth.signOut();
-    router.push('/login');
     router.refresh();
   };
 
