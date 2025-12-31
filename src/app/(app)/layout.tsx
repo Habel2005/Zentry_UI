@@ -35,34 +35,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const fetchUser = async () => {
-      if (isSupabaseConfigured) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setUserEmail(user.email || 'User');
-        } else {
-            // No redirect logic here - middleware handles it.
+    if (!isSupabaseConfigured) return;
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN') {
+          setUserEmail(session?.user?.email ?? null);
         }
-      }
-    };
-
-    fetchUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
           router.push('/login');
           router.refresh();
         }
-        if (session?.user) {
-          setUserEmail(session.user.email || null);
-        } else {
-          setUserEmail(null);
-        }
-      });
-  
-      return () => {
-        authListener.subscription.unsubscribe();
-      };
+      }
+    );
+
+    // Set initial user
+    const getInitialUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        setUserEmail(session.user.email ?? null);
+      }
+    };
+    getInitialUser();
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [router]);
 
   const handleLogout = async () => {

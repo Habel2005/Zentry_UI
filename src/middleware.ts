@@ -6,7 +6,6 @@ export async function middleware(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
-    // If supabase is not configured, we can't do anything.
     if (!supabaseUrl || !supabaseKey || !supabaseUrl.includes('supabase.co')) {
         return NextResponse.next();
     }
@@ -44,8 +43,9 @@ export async function middleware(request: NextRequest) {
     )
 
     const {
-        data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
+    
 
     const { pathname } = request.nextUrl
 
@@ -60,9 +60,10 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith(route)
     );
 
-    if (isProtected && !session) {
+    if (isProtected && !user) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
+    
 
     return response;
 }
