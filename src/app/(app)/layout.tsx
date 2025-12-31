@@ -41,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         if (user) {
           setUserEmail(user.email || 'User');
         } else {
-            router.push('/login');
+            // No redirect logic here - middleware handles it.
         }
       }
     };
@@ -49,25 +49,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     fetchUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        router.push('/login');
-      }
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUserEmail(session.user.email || null);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+        if (event === 'SIGNED_OUT') {
+          router.push('/login');
+          router.refresh();
+        }
+        if (session?.user) {
+          setUserEmail(session.user.email || null);
+        } else {
+          setUserEmail(null);
+        }
+      });
+  
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
   }, [router]);
 
   const handleLogout = async () => {
     if (!isSupabaseConfigured) return;
     const { error } = await supabase.auth.signOut();
-    if (!error) {
-      router.push('/login');
-    } else {
+    if (error) {
       console.error('Logout failed:', error.message);
     }
   };

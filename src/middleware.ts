@@ -26,16 +26,9 @@ export async function middleware(request: NextRequest) {
               return request.cookies.get(name)?.value
             },
             set(name: string, value: string, options: CookieOptions) {
-              request.cookies.set({
-                name,
-                value,
-                ...options,
-              })
-              response = NextResponse.next({
-                request: {
-                  headers: request.headers,
-                },
-              })
+              // The `set` method was called from a Server Component.
+              // This can be ignored if you have middleware refreshing
+              // user sessions.
               response.cookies.set({
                 name,
                 value,
@@ -43,16 +36,9 @@ export async function middleware(request: NextRequest) {
               })
             },
             remove(name: string, options: CookieOptions) {
-              request.cookies.set({
-                name,
-                value: '',
-                ...options,
-              })
-              response = NextResponse.next({
-                request: {
-                  headers: request.headers,
-                },
-              })
+              // The `delete` method was called from a Server Component.
+              // This can be ignored if you have middleware refreshing
+              // user sessions.
               response.cookies.set({
                 name,
                 value: '',
@@ -92,7 +78,9 @@ export const config = {
         * - _next/static (static files)
         * - _next/image (image optimization files)
         * - favicon.ico (favicon file)
+        * - auth (Supabase auth routes)
+        * - api (API routes)
         */
-        '/((?!_next/static|_next/image|favicon.ico).*)',
+        '/((?!_next/static|_next/image|favicon.ico|auth|api).*)',
     ],
 }
