@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { MOCK_CALLS } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -19,35 +18,34 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HandlerChart, STTQualityChart } from './_components/charts';
+import { fetchDashboardOverview } from '@/lib/queries';
 
-export default function DashboardPage() {
-  const totalCalls = MOCK_CALLS.length;
-  const ongoingCalls = MOCK_CALLS.filter(
-    (call) => call.status === 'Ongoing'
-  ).length;
-  const droppedCalls = MOCK_CALLS.filter(
-    (call) => call.status === 'Dropped'
-  ).length;
-  const handledByAI = MOCK_CALLS.filter(
-    (call) => call.handler === 'AI'
-  ).length;
-  const handledByHuman = MOCK_CALLS.filter(
-    (call) => call.handler === 'Human'
-  ).length;
+export default async function DashboardPage() {
+  const { data: overviewData, error } = await fetchDashboardOverview();
+
+  if (error || !overviewData || overviewData.length === 0) {
+    return <div>Error loading dashboard data.</div>;
+  }
+
+  const overview = overviewData[0];
+
+  const totalCalls = overview.total_calls ?? 0;
+  const ongoingCalls = overview.ongoing_calls ?? 0;
+  const droppedCalls = overview.dropped_calls ?? 0;
+  const handledByAI = overview.ai_handled_calls ?? 0;
+  const handledByHuman = totalCalls - handledByAI;
 
   const sttQualityData = [
-    { name: 'High', count: MOCK_CALLS.filter((c) => c.sttQuality === 'High').length },
-    { name: 'Medium', count: MOCK_CALLS.filter((c) => c.sttQuality === 'Medium').length },
-    { name: 'Low', count: MOCK_CALLS.filter((c) => c.sttQuality === 'Low').length },
-    { name: 'Failed', count: MOCK_CALLS.filter((c) => c.sttQuality === 'Failed').length },
+    { name: 'High', count: overview.stt_high_quality ?? 0 },
+    { name: 'Medium', count: overview.stt_medium_quality ?? 0 },
+    { name: 'Low', count: overview.stt_low_quality ?? 0 },
+    { name: 'Failed', count: overview.stt_failed ?? 0 },
   ];
 
   const handlerData = [
     { name: 'AI Handled', value: handledByAI },
     { name: 'Human Handled', value: handledByHuman },
   ];
-
-  const recentCalls = MOCK_CALLS.slice(0, 5);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -58,7 +56,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalCalls}</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            <p className="text-xs text-muted-foreground">in last 30 days</p>
           </CardContent>
         </Card>
         <Card>
@@ -76,7 +74,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{droppedCalls}</div>
-            <p className="text-xs text-muted-foreground">-2% from last week</p>
+            <p className="text-xs text-muted-foreground">in last 7 days</p>
           </CardContent>
         </Card>
         <Card>
@@ -84,56 +82,23 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">Avg. Call Duration</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">04:32</div>
-            <p className="text-xs text-muted-foreground">+5s from yesterday</p>
+            <div className="text-2xl font-bold">{overview.average_duration_seconds ? `${Math.round(overview.average_duration_seconds / 60)}m ${overview.average_duration_seconds % 60}s` : 'N/A'}</div>
+            <p className="text-xs text-muted-foreground">from all calls</p>
           </CardContent>
         </Card>
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3 mt-8">
-        <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Call History</CardTitle>
-            <CardDescription>An overview of the last 5 calls.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Call ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Language</TableHead>
-                  <TableHead className="text-right">Duration</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentCalls.map((call) => (
-                  <TableRow key={call.id}>
-                    <TableCell className="font-medium">
-                      <Link href={`/calls/${call.id}`} className="hover:underline">
-                        {call.id}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={call.status === 'Dropped' ? 'destructive' : 'outline'}>{call.status}</Badge>
-                    </TableCell>
-                    <TableCell>{call.language}</TableCell>
-                    <TableCell className="text-right">{call.duration}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-          <CardHeader>
-             <div className="text-sm text-muted-foreground">
-                <Button asChild size="sm" className="ml-auto gap-1">
-                  <Link href="/calls">
-                    View All
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-          </CardHeader>
-        </Card>
+        <div className="xl:col-span-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle>STT Quality Distribution</CardTitle>
+                    <CardDescription>Breakdown of Speech-to-Text quality across all calls.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <STTQualityChart data={sttQualityData} />
+                </CardContent>
+            </Card>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>AI vs. Human Handling</CardTitle>
@@ -144,17 +109,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-       <div className="grid gap-4 md:gap-8 mt-8">
-        <Card>
-            <CardHeader>
-                <CardTitle>STT Quality Distribution</CardTitle>
-                <CardDescription>Breakdown of Speech-to-Text quality across all calls.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <STTQualityChart data={sttQualityData} />
-            </CardContent>
-        </Card>
-       </div>
     </div>
   );
 }
