@@ -43,10 +43,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const checkUser = async () => {
+      // If the supabase client isn't initialized, we can't check for a user.
+      // Redirect to login, where the user will see a config error.
       if (!supabase) {
-        setLoading(false);
+        router.replace('/login');
         return;
       }
+      
       const { data, error } = await supabase.auth.getSession();
       if (error || !data.session) {
         router.replace('/login');
