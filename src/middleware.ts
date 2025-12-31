@@ -26,9 +26,6 @@ export async function middleware(request: NextRequest) {
               return request.cookies.get(name)?.value
             },
             set(name: string, value: string, options: CookieOptions) {
-              // The `set` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
               response.cookies.set({
                 name,
                 value,
@@ -36,9 +33,6 @@ export async function middleware(request: NextRequest) {
               })
             },
             remove(name: string, options: CookieOptions) {
-              // The `delete` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
               response.cookies.set({
                 name,
                 value: '',
@@ -49,23 +43,25 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // Refresh session if expired - required for Server Components
     const {
         data: { session },
     } = await supabase.auth.getSession()
 
     const { pathname } = request.nextUrl
 
-    // If the user is not logged in and is trying to access a protected route,
-    // redirect them to the login page.
-    if (!session && pathname !== '/login') {
-        return NextResponse.redirect(new URL('/login', request.url))
-    }
+    const protectedRoutes = [
+      '/dashboard',
+      '/calls',
+      '/callers',
+      '/admission-baseline',
+    ];
 
-    // If the user is logged in and tries to access the login page,
-    // redirect them to the dashboard.
-    if (session && pathname === '/login') {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+    const isProtected = protectedRoutes.some(route =>
+      pathname.startsWith(route)
+    );
+
+    if (isProtected && !session) {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
 
     return response;
