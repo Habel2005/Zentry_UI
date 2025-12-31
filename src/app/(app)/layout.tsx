@@ -36,38 +36,40 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const fetchUser = async () => {
-      if (!isSupabaseConfigured) return;
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        setUserEmail(data.user.email || null);
-      } else {
-        // This case should be handled by middleware, but as a fallback:
-        router.push('/login');
+      if (isSupabaseConfigured) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserEmail(user.email || 'User');
+        } else {
+            router.push('/login');
+        }
       }
     };
+
     fetchUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_OUT') {
-          router.push('/login');
-        }
-        if (event === 'SIGNED_IN' && session?.user) {
-          setUserEmail(session.user.email || null);
-        }
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        router.push('/login');
       }
-    );
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUserEmail(session.user.email || null);
+      }
+    });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-
   }, [router]);
 
   const handleLogout = async () => {
     if (!isSupabaseConfigured) return;
-    await supabase.auth.signOut();
-    router.refresh();
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      router.push('/login');
+    } else {
+      console.error('Logout failed:', error.message);
+    }
   };
 
   return (
