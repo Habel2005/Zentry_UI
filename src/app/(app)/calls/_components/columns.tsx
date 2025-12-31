@@ -12,12 +12,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Call } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { format } from 'date-fns';
 
-export const columns: ColumnDef<Call>[] = [
+// This type is a subset of the `Call` type in `types.ts`
+// but includes the `isRepeatCaller` field from the view.
+export type CallListEntry = {
+    id: string;
+    timestamp: string;
+    status: string;
+    language: string;
+    duration: string;
+    isRepeatCaller: boolean;
+    sttQuality: string;
+  };
+
+export const columns: ColumnDef<CallListEntry>[] = [
   {
     accessorKey: "id",
     header: "Call ID",
@@ -41,7 +52,7 @@ export const columns: ColumnDef<Call>[] = [
         const status = row.getValue("status") as string;
         let variant: "default" | "destructive" | "secondary" | "outline" = "outline";
         if (status === 'Completed') variant = 'secondary';
-        if (status === 'Dropped') variant = 'destructive';
+        if (status === 'Dropped' || status === 'Failed') variant = 'destructive';
 
         return <Badge variant={variant}>{status}</Badge>
     }
@@ -51,8 +62,24 @@ export const columns: ColumnDef<Call>[] = [
     header: "Language",
   },
   {
-    accessorKey: "handler",
-    header: "Handled By",
+      accessorKey: "sttQuality",
+      header: "STT Quality",
+      cell: ({ row }) => {
+          const quality = row.getValue("sttQuality") as string;
+          let variant: "default" | "destructive" | "secondary" | "outline" = "secondary";
+          if (quality === 'Low') variant = 'outline';
+          if (quality === 'Failed') variant = 'destructive';
+  
+          return <Badge variant={variant}>{quality}</Badge>
+      }
+  },
+  {
+    accessorKey: 'isRepeatCaller',
+    header: 'Caller Type',
+    cell: ({ row }) => {
+      const isRepeat = row.getValue('isRepeatCaller');
+      return isRepeat ? <Badge variant="outline">Repeat</Badge> : <Badge variant="secondary">New</Badge>;
+    },
   },
   {
     accessorKey: "duration",
@@ -67,24 +94,10 @@ export const columns: ColumnDef<Call>[] = [
       const call = row.original
 
       return (
-        <div className="text-right">
-            <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                    <Link href={`/calls/${call.id}`}>View call details</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>View caller profile</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">Delete call</DropdownMenuItem>
-            </DropdownMenuContent>
-            </DropdownMenu>
+        <div className="text-center">
+            <Button variant="ghost" size="sm" asChild>
+                <Link href={`/calls/${call.id}`}>View</Link>
+            </Button>
         </div>
       )
     },

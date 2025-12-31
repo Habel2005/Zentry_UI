@@ -1,10 +1,8 @@
 'use client';
 
 import {
-  Bell,
   Home,
   LineChart,
-  Package2,
   Phone,
   Scale,
   Users,
@@ -25,7 +23,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 import { cn } from '@/lib/utils';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Logo } from '@/components/icons/logo';
 
 const navItems = [
@@ -37,7 +34,6 @@ const navItems = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -116,13 +112,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={userAvatar?.imageUrl}
+                    src="https://picsum.photos/seed/avatar/32/32"
                     alt="User avatar"
                     width={32}
                     height={32}
-                    data-ai-hint={userAvatar?.imageHint}
+                    data-ai-hint="person face"
                   />
-
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>

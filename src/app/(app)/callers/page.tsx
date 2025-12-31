@@ -1,4 +1,3 @@
-import { MOCK_CALLERS } from '@/lib/data';
 import {
     Card,
     CardContent,
@@ -17,12 +16,13 @@ import {
 import { format } from 'date-fns';
 
 export default function CallersPage() {
+  const MOCK_CALLERS: any[] = [];
   return (
     <Card>
       <CardHeader>
         <CardTitle>Caller Overview</CardTitle>
         <CardDescription>
-          Anonymized view of caller behavior patterns and history.
+          Anonymized view of caller behavior patterns and history. (Not Implemented)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -37,7 +37,13 @@ export default function CallersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_CALLERS.map((caller) => (
+            {MOCK_CALLERS.length === 0 ? (
+                <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                        This feature is not yet available.
+                    </TableCell>
+                </TableRow>
+            ): MOCK_CALLERS.map((caller) => (
               <TableRow key={caller.id}>
                 <TableCell className="font-medium">{caller.id}</TableCell>
                 <TableCell>{caller.totalCalls}</TableCell>

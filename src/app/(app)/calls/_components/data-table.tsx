@@ -79,6 +79,7 @@ export function DataTable<TData, TValue>({
             <SelectItem value="Completed">Completed</SelectItem>
             <SelectItem value="Ongoing">Ongoing</SelectItem>
             <SelectItem value="Dropped">Dropped</SelectItem>
+            <SelectItem value="Failed">Failed</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -93,10 +94,10 @@ export function DataTable<TData, TValue>({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Languages</SelectItem>
-            <SelectItem value="EN">English</SelectItem>
-            <SelectItem value="ES">Spanish</SelectItem>
-            <SelectItem value="FR">French</SelectItem>
-            <SelectItem value="DE">German</SelectItem>
+            <SelectItem value="EN">English (EN)</SelectItem>
+            <SelectItem value="ES">Spanish (ES)</SelectItem>
+            <SelectItem value="FR">French (FR)</SelectItem>
+            <SelectItem value="DE">German (DE)</SelectItem>
           </SelectContent>
         </Select>
 

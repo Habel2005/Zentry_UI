@@ -31,10 +31,23 @@ const getConfidenceColor = (confidence: number) => {
 }
 
 export default function CallDetailPage({ params }: { params: { id: string } }) {
-  const call = getCallById(params.id);
+  // This page is not yet connected to data.
+  const call = null; //getCallById(params.id);
 
   if (!call) {
-    notFound();
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Call Detail</CardTitle>
+                <CardDescription>ID: {params.id}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex h-64 items-center justify-center text-muted-foreground">
+                    This feature is not yet available.
+                </div>
+            </CardContent>
+        </Card>
+    );
   }
 
   return (

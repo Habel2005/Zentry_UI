@@ -1,4 +1,4 @@
-import { MOCK_ADMISSION_BASELINES } from '@/lib/data';
+
 import {
     Card,
     CardContent,
@@ -20,12 +20,15 @@ import { Progress } from '@/components/ui/progress';
 
 
 export default function AdmissionBaselinePage() {
+    // This page is not yet connected to data.
+    const MOCK_ADMISSION_BASELINES: any[] = [];
+
     return (
       <Card>
         <CardHeader>
           <CardTitle>Admission Baseline View</CardTitle>
           <CardDescription>
-            Read-only display of program availability and confidence levels.
+            Read-only display of program availability and confidence levels. (Not Implemented)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -40,7 +43,13 @@ export default function AdmissionBaselinePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {MOCK_ADMISSION_BASELINES.map((baseline) => (
+              {MOCK_ADMISSION_BASELINES.length === 0 ? (
+                <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                        This feature is not yet available.
+                    </TableCell>
+                </TableRow>
+              ) : MOCK_ADMISSION_BASELINES.map((baseline) => (
                 <TableRow key={baseline.id}>
                   <TableCell className="font-medium">{baseline.program}</TableCell>
                   <TableCell>

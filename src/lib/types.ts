@@ -1,10 +1,10 @@
-export type CallStatus = 'Ongoing' | 'Completed' | 'Dropped';
-export type CallHandler = 'AI' | 'Human';
-export type CallLanguage = 'EN' | 'ES' | 'FR' | 'DE';
-export type STTConfidence = 'High' | 'Medium' | 'Low' | 'Failed';
+export type CallStatus = 'ongoing' | 'completed' | 'dropped' | 'failed';
+export type CallHandler = 'ai' | 'human' | 'hybrid';
+export type CallLanguage = 'EN' | 'ES' | 'FR' | 'DE' | string; // Allow other languages
+export type STTQuality = 'good' | 'low' | 'failed';
 
 export type TranscriptSegment = {
-  speaker: 'Caller' | 'Agent';
+  speaker: 'user' | 'ai';
   text: string;
   timestamp: string;
   confidence: number;
@@ -26,7 +26,7 @@ export type Call = {
   status: CallStatus;
   handler: CallHandler;
   language: CallLanguage;
-  sttQuality: STTConfidence;
+  sttQuality: STTQuality;
   transcript: TranscriptSegment[];
   timeline: TimelineEvent[];
   guardrailTriggers: string[];
