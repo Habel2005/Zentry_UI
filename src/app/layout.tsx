@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Zentry Insights',
+  title: 'Zentry Admin UI',
   description: 'AI-powered call center analytics and monitoring.',
 };
 
