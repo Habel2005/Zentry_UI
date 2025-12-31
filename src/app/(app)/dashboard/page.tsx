@@ -5,26 +5,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { HandlerChart, STTQualityChart } from './_components/charts';
 import { fetchDashboardOverview } from '@/lib/queries';
+import { STTQualityChart, HandlerChart } from './_components/charts';
+import { Phone, Users, PhoneOff, Bot } from 'lucide-react';
 
 export default async function DashboardPage() {
   const { data: overviewData, error } = await fetchDashboardOverview();
 
   if (error || !overviewData || overviewData.length === 0) {
-    return <div>Error loading dashboard data.</div>;
+    return <div className="text-center text-muted-foreground">Could not load dashboard data. Please ensure your Supabase connection is configured correctly.</div>;
   }
 
   const overview = overviewData[0];
@@ -32,74 +21,66 @@ export default async function DashboardPage() {
   const totalCalls = overview.total_calls ?? 0;
   const ongoingCalls = overview.ongoing_calls ?? 0;
   const droppedCalls = overview.dropped_calls ?? 0;
-  const handledByAI = overview.ai_handled_calls ?? 0;
-  const handledByHuman = totalCalls - handledByAI;
+  const aiCalls = overview.ai_calls ?? 0;
+  const humanCalls = overview.human_calls ?? 0;
 
   const sttQualityData = [
-    { name: 'High', count: overview.stt_high_quality ?? 0 },
-    { name: 'Medium', count: overview.stt_medium_quality ?? 0 },
-    { name: 'Low', count: overview.stt_low_quality ?? 0 },
+    { name: 'Good', count: overview.stt_good ?? 0 },
+    { name: 'Low', count: overview.stt_low ?? 0 },
     { name: 'Failed', count: overview.stt_failed ?? 0 },
   ];
 
   const handlerData = [
-    { name: 'AI Handled', value: handledByAI },
-    { name: 'Human Handled', value: handledByHuman },
+    { name: 'AI Handled', value: aiCalls },
+    { name: 'Human Handled', value: humanCalls },
   ];
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+    <div className="flex flex-1 flex-col gap-6">
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Calls</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Calls (Today)</CardTitle>
+            <Phone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalCalls}</div>
-            <p className="text-xs text-muted-foreground">in last 30 days</p>
+            <p className="text-xs text-muted-foreground">Total calls recorded today.</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ongoing Calls</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{ongoingCalls}</div>
-            <p className="text-xs text-muted-foreground">Live now</p>
+            <p className="text-xs text-muted-foreground">Active calls right now.</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dropped Calls</CardTitle>
+            <CardTitle className="text-sm font-medium">Dropped Calls (Today)</CardTitle>
+            <PhoneOff className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{droppedCalls}</div>
-            <p className="text-xs text-muted-foreground">in last 7 days</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Call Duration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview.average_duration_seconds ? `${Math.round(overview.average_duration_seconds / 60)}m ${overview.average_duration_seconds % 60}s` : 'N/A'}</div>
-            <p className="text-xs text-muted-foreground">from all calls</p>
+             <p className="text-xs text-muted-foreground">Calls that failed or were dropped.</p>
           </CardContent>
         </Card>
       </div>
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3 mt-8">
-        <div className="xl:col-span-2">
-            <Card>
-                <CardHeader>
-                    <CardTitle>STT Quality Distribution</CardTitle>
-                    <CardDescription>Breakdown of Speech-to-Text quality across all calls.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <STTQualityChart data={sttQualityData} />
-                </CardContent>
-            </Card>
-        </div>
-        <Card>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-3">
+            <CardHeader>
+                <CardTitle>STT Quality Distribution</CardTitle>
+                <CardDescription>Breakdown of Speech-to-Text quality across all calls today.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <STTQualityChart data={sttQualityData} />
+            </CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>AI vs. Human Handling</CardTitle>
             <CardDescription>Distribution of calls handled by AI vs. Human agents.</CardDescription>
