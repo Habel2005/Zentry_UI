@@ -1,15 +1,16 @@
+
 "use client"
 
+import * as React from "react"
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
-  getFilteredRowModel,
   useReactTable,
-  ColumnFiltersState,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
 } from "@tanstack/react-table"
-import * as React from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import {
   Table,
@@ -20,74 +21,98 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  pageCount: number
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pageCount,
 }: DataTableProps<TData, TValue>) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const page = Number(searchParams.get("page") ?? "1");
+  const pageSize = Number(searchParams.get("pageSize") ?? "10");
+  const status = searchParams.get("status") ?? "all";
+  const language = searchParams.get("language") ?? "all";
+
+  const createQueryString = React.useCallback(
+    (params: Record<string, string | number | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams?.toString())
+
+      for (const [key, value] of Object.entries(params)) {
+        if (value === null) {
+          newSearchParams.delete(key)
+        } else {
+          newSearchParams.set(key, String(value))
+        }
+      }
+
+      return newSearchParams.toString()
+    },
+    [searchParams]
   )
+
   const table = useReactTable({
     data,
     columns,
+    pageCount,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-    },
+    manualPagination: true,
+    manualFiltering: true,
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
   return (
     <div>
-        <div className="flex items-center py-4 gap-2">
-        <Input
-          placeholder="Filter by Call ID..."
-          value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("id")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+      <div className="flex items-center py-4 gap-2">
         <Select
-            value={(table.getColumn("status")?.getFilterValue() as string) ?? "all"}
-            onValueChange={(value) => {
-                const val = value === 'all' ? '' : value;
-                table.getColumn("status")?.setFilterValue(val)
-            }}
+          value={status}
+          onValueChange={(value) => {
+            router.push(
+              `${pathname}?${createQueryString({
+                page: 1,
+                status: value === "all" ? null : value,
+              })}`
+            )
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="Completed">Completed</SelectItem>
-            <SelectItem value="Ongoing">Ongoing</SelectItem>
-            <SelectItem value="Dropped">Dropped</SelectItem>
-            <SelectItem value="Failed">Failed</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="ongoing">Ongoing</SelectItem>
+            <SelectItem value="dropped">Dropped</SelectItem>
+            <SelectItem value="failed">Failed</SelectItem>
           </SelectContent>
         </Select>
         <Select
-            value={(table.getColumn("language")?.getFilterValue() as string) ?? "all"}
-            onValueChange={(value) => {
-                const val = value === 'all' ? '' : value;
-                table.getColumn("language")?.setFilterValue(val);
-            }}
+          value={language}
+          onValueChange={(value) => {
+            router.push(
+              `${pathname}?${createQueryString({
+                page: 1,
+                language: value === "all" ? null : value,
+              })}`
+            )
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by Language" />
@@ -100,7 +125,6 @@ export function DataTable<TData, TValue>({
             <SelectItem value="DE">German (DE)</SelectItem>
           </SelectContent>
         </Select>
-
       </div>
       <div className="rounded-md border">
         <Table>
@@ -146,23 +170,40 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="text-sm text-muted-foreground">
+          Page {page} of {pageCount}
+        </div>
+        <div className="flex items-center gap-2">
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+                router.push(
+                `${pathname}?${createQueryString({
+                    page: page - 1,
+                })}`
+                )
+            }}
+            disabled={page <= 1}
+            >
+            Previous
+            </Button>
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+                router.push(
+                `${pathname}?${createQueryString({
+                    page: page + 1,
+                })}`
+                )
+            }}
+            disabled={page >= pageCount}
+            >
+            Next
+            </Button>
+        </div>
       </div>
     </div>
   )

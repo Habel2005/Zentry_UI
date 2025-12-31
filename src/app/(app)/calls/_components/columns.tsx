@@ -1,17 +1,9 @@
+
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { format } from 'date-fns';
@@ -34,7 +26,7 @@ export const columns: ColumnDef<CallListEntry>[] = [
     header: "Call ID",
     cell: ({ row }) => {
         const id: string = row.getValue("id")
-        return <Link href={`/calls/${id}`} className="hover:underline font-medium text-primary">{id}</Link>
+        return <Link href={`/calls/${id}`} className="hover:underline font-medium text-primary">{id.slice(0,8)}...</Link>
     }
   },
   {

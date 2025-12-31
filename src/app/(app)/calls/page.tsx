@@ -1,4 +1,4 @@
-import { fetchCallList } from '@/lib/queries';
+
 import {
   Card,
   CardContent,
@@ -10,10 +10,29 @@ import { DataTable } from './_components/data-table';
 import { columns } from './_components/columns';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { fetchCallList } from '@/lib/queries';
 
-export default async function CallsPage() {
-  // For now, we'll fetch the first 50 calls. Pagination can be added later.
-  const { data: calls, error } = await fetchCallList(0, 49);
+export default async function CallsPage({
+  searchParams,
+}: {
+  searchParams?: {
+    page?: string;
+    pageSize?: string;
+    status?: string;
+    language?: string;
+  };
+}) {
+  const page = Number(searchParams?.page) || 1;
+  const pageSize = Number(searchParams?.pageSize) || 10;
+  const status = searchParams?.status;
+  const language = searchParams?.language;
+
+  const { data: calls, error, count } = await fetchCallList({
+    page,
+    pageSize,
+    status: status === 'all' ? undefined : status,
+    language: language === 'all' ? undefined : language,
+  });
 
   if (error) {
     return (
@@ -26,14 +45,16 @@ export default async function CallsPage() {
       </Alert>
     );
   }
-  
+
+  const pageCount = count ? Math.ceil(count / pageSize) : 0;
+
   // The view returns columns with snake_case, but the app expects camelCase.
   // We need to map the data.
   const formattedData = calls.map(call => ({
     id: call.call_id,
     callerId: '', // Not in this view
     timestamp: call.call_start_time,
-    duration: `${call.duration_seconds}s`,
+    duration: call.duration_seconds ? `${call.duration_seconds}s` : 'N/A',
     status: call.call_status.charAt(0).toUpperCase() + call.call_status.slice(1),
     handler: 'N/A', // Not in this view
     language: call.language_detected,
@@ -54,7 +75,11 @@ export default async function CallsPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <DataTable columns={columns} data={formattedData} />
+        <DataTable
+          columns={columns}
+          data={formattedData}
+          pageCount={pageCount}
+        />
       </CardContent>
     </Card>
   );
