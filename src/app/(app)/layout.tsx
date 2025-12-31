@@ -8,7 +8,8 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
+import { supabase } from '@/lib/supabase';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -34,6 +36,40 @@ const navItems = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkUser = async () => {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session) {
+        router.replace('/login');
+      } else {
+        setUser(data.session.user);
+        setLoading(false);
+      }
+    };
+    checkUser();
+  }, [router]);
+
+  const handleLogout = async () => {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    router.replace('/login');
+  };
+
+  if (loading) {
+    return (
+        <div className="flex h-screen w-screen items-center justify-center">
+            <div className="text-muted-foreground">Loading...</div>
+        </div>
+    );
+  }
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -118,18 +154,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     height={32}
                     data-ai-hint="person face"
                   />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'A'}</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.email || 'My Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem disabled>Settings</DropdownMenuItem>
+              <DropdownMenuItem disabled>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
