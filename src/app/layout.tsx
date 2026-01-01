@@ -7,11 +7,11 @@ import { Inter } from 'next/font/google';
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
-  title: 'Zentry Admin UI',
+  title: 'Zentry Insights',
   description: 'AI-powered call center analytics and monitoring.',
 };
 
