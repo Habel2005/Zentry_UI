@@ -72,17 +72,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full h-screen lg:grid lg:grid-cols-2">
-      <div className="hidden bg-muted lg:block">
+    <div className="w-full h-screen relative flex items-center justify-center">
+      <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:left-0 lg:w-1/2">
         <Image
-          src="/login/new2.png"
+          src="https://picsum.photos/seed/loginbg/1200/1800"
           alt="Abstract background image"
-          width="1200"
-          height="1800"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          layout="fill"
+          objectFit="cover"
+          className="h-full w-full dark:brightness-[0.2] dark:grayscale"
+          data-ai-hint="office building"
         />
       </div>
-      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="w-full lg:w-1/2 lg:ml-auto flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="mx-auto grid w-[380px] gap-6">
           <div className="grid gap-2 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -90,7 +91,7 @@ export default function LoginPage() {
                 <h1 className="text-3xl font-bold">Zentry Insights</h1>
             </div>
             <p className="text-balance text-muted-foreground">
-              Enter your credentials to access your account.
+              Enter your credentials to access the dashboard.
             </p>
           </div>
           <form onSubmit={handleLogin} className="grid gap-4">
@@ -131,9 +132,9 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
                   disabled={loading}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
                 </button>
               </div>
             </div>
