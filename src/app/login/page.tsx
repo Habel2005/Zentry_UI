@@ -7,7 +7,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Logo } from '@/components/icons/logo';
 import Image from 'next/image';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
@@ -23,16 +23,16 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     if (!isSupabaseConfigured) {
       setError(
         'Supabase client is not initialized. Please check your environment variables.'
       );
+      setLoading(false);
       return;
     }
     
-    setLoading(true);
-
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -54,17 +54,17 @@ export default function LoginPage() {
 
   if (!isSupabaseConfigured) {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
+        <div className="flex h-screen items-center justify-center bg-muted/40 px-4">
             <div className="w-full max-w-lg p-8 space-y-4 bg-card text-card-foreground rounded-lg shadow-lg">
                 <Alert variant="destructive">
-                    <AlertTitle>Configuration Error</AlertTitle>
-                    <AlertDescription>
+                    <h5 className="mb-1 font-medium leading-none tracking-tight">Configuration Error</h5>
+                    <div className="text-sm [&_p]:leading-relaxed">
                         Your Supabase environment variables are missing or invalid. Please create or check your <code>.env.local</code> file and ensure that <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> are set correctly.
                         <div className="p-4 mt-4 rounded-md bg-muted text-sm font-mono">
                             <p>NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co</p>
                             <p>NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key</p>
                         </div>
-                    </AlertDescription>
+                    </div>
                 </Alert>
             </div>
         </div>
@@ -72,7 +72,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
+    <div className="w-full h-screen lg:grid lg:grid-cols-2">
       <div className="hidden bg-muted lg:block">
         <Image
           src="/login/new2.png"
