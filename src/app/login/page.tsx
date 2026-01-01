@@ -75,7 +75,7 @@ export default function LoginPage() {
     <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
       <div className="hidden bg-muted lg:block">
         <Image
-          src="/login/new2.png"
+          src="https://picsum.photos/seed/login/1200/1800"
           alt="Abstract background image"
           width="1200"
           height="1800"
