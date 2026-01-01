@@ -7,6 +7,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Eye, EyeOff, LoaderCircle, Mail, Lock } from 'lucide-react';
 import { Logo } from '@/components/icons/logo';
