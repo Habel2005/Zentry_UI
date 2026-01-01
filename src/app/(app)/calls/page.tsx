@@ -30,7 +30,7 @@ export default async function CallsPage({
   const { data: calls, error, count } = await fetchCallList({
     page,
     pageSize,
-    status: status === 'all' ? undefined : status,
+    status: status === 'all' ? undefined : status?.toLowerCase(),
     language: language === 'all' ? undefined : language,
   });
 
