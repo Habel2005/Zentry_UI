@@ -31,7 +31,7 @@ export default async function CallsPage({
     page,
     pageSize,
     status: status === 'all' ? undefined : status?.toLowerCase(),
-    language: language === 'all' ? undefined : language,
+    language: language === 'all' ? undefined : language?.toLowerCase(),
   });
 
   if (error) {

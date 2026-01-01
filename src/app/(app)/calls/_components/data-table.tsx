@@ -119,10 +119,11 @@ export function DataTable<TData, TValue>({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Languages</SelectItem>
-            <SelectItem value="EN">English (EN)</SelectItem>
-            <SelectItem value="ES">Spanish (ES)</SelectItem>
-            <SelectItem value="FR">French (FR)</SelectItem>
-            <SelectItem value="DE">German (DE)</SelectItem>
+            <SelectItem value="ml">Malayalam (ml)</SelectItem>
+            <SelectItem value="en">English (en)</SelectItem>
+            <SelectItem value="es">Spanish (es)</SelectItem>
+            <SelectItem value="fr">French (fr)</SelectItem>
+            <SelectItem value="de">German (de)</SelectItem>
           </SelectContent>
         </Select>
       </div>
