@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -9,6 +10,21 @@ import { fetchDashboardOverview } from '@/lib/queries';
 import { STTQualityChart, HandlerChart } from './_components/charts';
 import { Phone, Users, PhoneOff, Bot } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { Separator } from '@/components/ui/separator';
+
+function StatItem({ icon: Icon, title, value, description, className }: { icon: React.ElementType, title: string, value: string | number, description: string, className?: string }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+        <Icon className="h-4 w-4" />
+        <span>{title}</span>
+      </div>
+      <div className={`text-3xl font-bold ${className}`}>{value}</div>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+  )
+}
+
 
 export default async function DashboardPage() {
   if (!supabase) {
@@ -66,38 +82,33 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6">
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Calls (Today)</CardTitle>
-            <Phone className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCalls}</div>
-            <p className="text-xs text-muted-foreground">Total calls recorded today.</p>
+       <Card>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatItem 
+                  icon={Phone}
+                  title="Total Calls (Today)"
+                  value={totalCalls}
+                  description="Total calls recorded today."
+                />
+                 <Separator orientation="vertical" className="hidden md:block h-auto"/>
+                 <StatItem 
+                  icon={Users}
+                  title="Ongoing Calls"
+                  value={ongoingCalls}
+                  description="Active calls right now."
+                />
+                <Separator orientation="vertical" className="hidden md:block h-auto"/>
+                 <StatItem 
+                  icon={PhoneOff}
+                  title="Dropped Calls (Today)"
+                  value={droppedCalls}
+                  description="Calls that failed or were dropped."
+                  className="text-destructive"
+                />
+            </div>
           </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ongoing Calls</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{ongoingCalls}</div>
-            <p className="text-xs text-muted-foreground">Active calls right now.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dropped Calls (Today)</CardTitle>
-            <PhoneOff className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{droppedCalls}</div>
-             <p className="text-xs text-muted-foreground">Calls that failed or were dropped.</p>
-          </CardContent>
-        </Card>
-      </div>
+       </Card>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
