@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Logo } from '@/components/icons/logo';
 import Image from 'next/image';
@@ -72,83 +71,87 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="dark h-screen w-screen flex items-center justify-center bg-background">
-      <Image
-        src="https://picsum.photos/seed/loginbg/1920/1080"
-        alt="Abstract background"
-        layout="fill"
-        objectFit="cover"
-        className="absolute inset-0 z-0 opacity-50"
-        data-ai-hint="abstract fluid blue"
-      />
-      <div className="relative z-10 w-full max-w-md p-8 space-y-8 bg-card/60 backdrop-blur-lg border border-border/20 rounded-2xl shadow-2xl">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Logo className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">Zentry Insights</h1>
+    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
+      <div className="hidden bg-muted lg:block">
+        <Image
+          src="/login/new2.png"
+          alt="Image"
+          width="1920"
+          height="1080"
+          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
+      </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+             <div className="flex items-center justify-center gap-2 font-semibold">
+                <Logo className="h-6 w-6 text-primary" />
+                <span className="text-xl">Zentry Insights</span>
+            </div>
+            <h1 className="text-3xl font-bold">Login</h1>
+            <p className="text-balance text-muted-foreground">
+              Enter your email below to login to your account
+            </p>
           </div>
-          <p className="text-muted-foreground">
-            Welcome back. Please sign in to continue.
-          </p>
-        </div>
-
-        <form onSubmit={handleLogin} className="space-y-6">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              id="email"
-              type="email"
-              placeholder="admin@example.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              autoComplete="email"
-              className="pl-10 h-12 bg-background/50 border-border/30 focus:bg-background"
-            />
-          </div>
-
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              autoComplete="current-password"
-              className="pl-10 pr-10 h-12 bg-background/50 border-border/30 focus:bg-background"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-              disabled={loading}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
-          </div>
-
-          <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={loading}>
-            {loading ? (
-              <>
-                <LoaderCircle className="animate-spin mr-2" />
-                <span>Signing In...</span>
-              </>
-            ) : (
-              'Sign In'
+          <form onSubmit={handleLogin} className="grid gap-4">
+            {error && (
+                <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+                </Alert>
             )}
-          </Button>
-        </form>
+            <div className="grid gap-2">
+                <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="admin@example.com"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={loading}
+                        autoComplete="email"
+                        className="pl-10 h-11"
+                    />
+                </div>
+            </div>
+            <div className="grid gap-2">
+                <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    autoComplete="current-password"
+                    className="pl-10 pr-10 h-11"
+                    />
+                    <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                    disabled={loading}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                </div>
+            </div>
+            <Button type="submit" className="w-full h-11" disabled={loading}>
+              {loading ? (
+                <>
+                  <LoaderCircle className="animate-spin mr-2" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
