@@ -10,10 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Logo } from '@/components/icons/logo';
 import Image from 'next/image';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -70,16 +72,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
-      <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
+    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
+      <div className="hidden bg-muted lg:block">
+        <Image
+          src="https://picsum.photos/seed/loginpage/1200/1800"
+          alt="Abstract background image"
+          width="1200"
+          height="1800"
+          data-ai-hint="office building"
+          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
+      </div>
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid w-[380px] gap-6">
           <div className="grid gap-2 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
                 <Logo className="h-7 w-7 text-accent" />
                 <h1 className="text-3xl font-bold">Zentry Insights</h1>
             </div>
             <p className="text-balance text-muted-foreground">
-              Enter your credentials to access the dashboard
+              Welcome back. Please sign in to continue.
             </p>
           </div>
           <form onSubmit={handleLogin} className="grid gap-4">
@@ -98,36 +110,46 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
+                autoComplete="email"
               />
             </div>
             <div className="grid gap-2">
-                <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                </div>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+              </div>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                  disabled={loading}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? (
+                <>
+                  <LoaderCircle className="animate-spin" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </form>
         </div>
-      </div>
-      <div className="hidden bg-muted lg:block">
-        <Image
-          src="https://picsum.photos/seed/loginpage/1200/1800"
-          alt="Abstract background image"
-          width="1200"
-          height="1800"
-          data-ai-hint="office building"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
       </div>
     </div>
   );
