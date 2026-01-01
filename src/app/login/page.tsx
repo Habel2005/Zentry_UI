@@ -75,11 +75,10 @@ export default function LoginPage() {
     <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
       <div className="hidden bg-muted lg:block">
         <Image
-          src="https://picsum.photos/seed/login/1200/1800"
+          src="/login/new2.png"
           alt="Abstract background image"
           width="1200"
           height="1800"
-          data-ai-hint="office building"
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
@@ -91,7 +90,7 @@ export default function LoginPage() {
                 <h1 className="text-3xl font-bold">Zentry Insights</h1>
             </div>
             <p className="text-balance text-muted-foreground">
-              Welcome back. Please sign in to continue.
+              Enter your credentials to access your account.
             </p>
           </div>
           <form onSubmit={handleLogin} className="grid gap-4">
