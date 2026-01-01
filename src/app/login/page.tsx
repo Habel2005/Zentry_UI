@@ -75,7 +75,7 @@ export default function LoginPage() {
     <div className="w-full h-screen relative flex items-center justify-center">
       <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:left-0 lg:w-1/2">
         <Image
-          src="https://picsum.photos/seed/loginbg/1200/1800"
+          src="/new2.png"
           alt="Abstract background image"
           layout="fill"
           objectFit="cover"
