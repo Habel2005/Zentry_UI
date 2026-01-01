@@ -82,7 +82,7 @@ export default function LoginPage() {
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
-      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid w-[380px] gap-6">
           <div className="grid gap-2 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
